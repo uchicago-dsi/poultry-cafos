@@ -6,19 +6,19 @@ dependencies:
   - fiona
   - gdal>3.0
   - ipykernel
-  - matplotlib
-  - numpy
-  - osmnx
-  - pandas
+    #- matplotlib
+    #- numpy
+    #- osmnx
+    #- pandas
   - pip
   - python
   - pytorch-gpu
-  - rasterio
-  - rtree
-  - scikit-image
-  - scikit-learn
-  - shapely
-  - torchvision
+    #- rasterio
+    #- rtree
+    #- scikit-image
+    #- scikit-learn
+    #- shapely
+    # - torchvision
   - pip:
     - black>=21.4b0
     - flake8>=3.8
@@ -27,3 +27,14 @@ dependencies:
     - parse
     - segmentation-models-pytorch>=0.2
     - tensorboard
+    # moved packages
+    - matplotlib
+    - numpy
+    - osmnx
+    - pandas
+    - rasterio
+    - rtree
+    - scikit-image
+    - scikit-learn
+    - shapely
+    - torchvision
