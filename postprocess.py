@@ -197,10 +197,14 @@ def postprocess_single_file(
         roads = []
         edges = set()
         road_idx = 0
-        for u, v in G.edges():
+
+        nds, eds = osmnx.graph_to_gdfs(G, fill_edge_geometry=True)
+        G2 = osmnx.graph_from_gdfs(nds, eds, graph_attrs=G.graph)
+
+        for u, v in G2.edges():
             if not ((u, v) in edges or (v, u) in edges):
                 edges.add((u, v))
-                for edge in G[u][v].values():
+                for edge in G2[u][v].values():
                     road = edge["geometry"]
                     roads.append(road)
 
@@ -258,8 +262,9 @@ def main():
     else:
         input_file_pattern = "_predictions-soft.tif"
 
-    for fn in fns:
-        assert fn.startswith("https://")
+    # for fn in fns:
+        # print(fn)
+        # assert fn.startswith("https://")
 
     # Calculate the paths to each file that we will be reading
     input_fns = []
@@ -274,7 +279,7 @@ def main():
             )
         elif args.input_dir is not None:
 
-            input_fn = os.path.basename(fn).replace(".tif", input_file_pattern)
+            input_fn = os.path.basename(fn).replace("_predictions.tif", input_file_pattern)
             input_fns.append(os.path.join(args.input_dir, input_fn))
         else:
             raise ValueError(
