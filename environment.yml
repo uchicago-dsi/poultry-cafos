@@ -1,3 +1,5 @@
+# TODO: try building this environment again using the pytorch channel
+# TODO: need to add planetary computer packages and pytest then rebuild
 name: cafo
 channels:
   - conda-forge
