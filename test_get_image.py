@@ -1,3 +1,9 @@
+# TODO: Create a testing directory
+
+# TODO: This is maybe a me (Todd) problem, but I had to run:
+# python -m pytest test_get_image.py
+# to get this to work
+
 import pytest 
 import pystac_client
 import pystac

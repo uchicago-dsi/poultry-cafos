@@ -5,6 +5,8 @@ from shapely.geometry import mapping, box, shape
 import requests
 import argparse
 
+# TODO: add type hints
+
 def bbox_geo_item(bbox):
     '''
     Convert a bbox into a Polygon
@@ -60,7 +62,7 @@ def get_tif_image(bbox, catalog, time_range="2018-01-01/2023-01-01"):
 
     # if no items found, stop the program
     if len(items_lst) == 0:
-        print("No items found, please try another coordinate")
+        print("No items found, please try another bounding box")
         return None
 
     print(f"{len(items_lst)} Items found in the time range")
@@ -74,8 +76,9 @@ def get_tif_image(bbox, catalog, time_range="2018-01-01/2023-01-01"):
     print(f"Latest best-match image found: {image_latest.id}")
     return image_latest
 
-
-def save_image_to_cloud(image):
+# TODO: maybe set default storage folder in config
+# and allow changing this through args
+def save_image_to_cloud(image, save_folder="/net/projects/rafi/example-tifs/"):
     '''
     Save the image to cloud storage
     
@@ -89,10 +92,13 @@ def save_image_to_cloud(image):
     tif_url = image.assets["image"].href
     image_fn = tif_url.split('?')[0].split('/')[-1]
     
-    save_fpath = f"image_data/{image_fn}"
+    save_fpath = save_folder + image_fn
 
     # Perform the request to download the TIFF file
     response = requests.get(tif_url, stream=True)
+
+    # TODO: maybe add some sort of progress bar or something if possible
+    # (since this takes awhile)
 
     # Check if the request was successful
     if response.status_code == 200:
