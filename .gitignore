@@ -33,3 +33,6 @@ data/runs/
 
 ##
 scripts/mount*
+
+## Google Earth Engine Credentials
+.private-key.json
