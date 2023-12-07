@@ -2,8 +2,9 @@ import geopandas as gpd
 import ee
 import argparse as ap
 
-#ee.Authenticate()
-ee.Initialize()
+service_account = 'earth-engine-rafi@rafi-usa.iam.gserviceaccount.com'
+credentials = ee.ServiceAccountCredentials(service_account, '.private-key.json')
+ee.Initialize(credentials)
 
 parser = ap.ArgumentParser()
 parser.add_argument("path", help="path to the file")
@@ -13,10 +14,10 @@ args = parser.parse_args()
 def load_data(path):
     '''
     Take in the data from the path and return a dataframe
-    
+
     Input:
         path: path to the geojson file, usually the output after running the postprocess.py
-    
+
     Output:
         df: a dataframe with all the information from the geojson file'''
 
@@ -28,10 +29,10 @@ def load_data(path):
 def filter_by_postprocess_rule(df):
     '''
     Filter the dataframe by the postprocess rule
-    
+
     Input:
         df: a dataframe with all the information from the geojson file
-    
+
     Output:
         filtered_df: a dataframe that has been filtered by the postprocess rule'''
 
@@ -48,7 +49,7 @@ def find_my_terrain(df):
 
     Input:
         df: a dataframe with all the information from the geojson file
-    
+
     Output:
         majority_class_info['label']: the terrain label for the polygon
     '''
@@ -76,14 +77,14 @@ def find_my_terrain(df):
 
 def add_label_and_filter(filtered_df):
     '''
-    Add the terrain label as new column to the dataframe and filter out 
+    Add the terrain label as new column to the dataframe and filter out
     the ones that are water label(0)
-    
-    Input:  
+
+    Input:
         filtered_df: a dataframe that has been filtered by the postprocess rule
-        
+
     Output:
-        filtered_df: a dataframe that has been filtered by the postprocess 
+        filtered_df: a dataframe that has been filtered by the postprocess
         rule and terrain label'''
     filtered_df['terrain_label'] = filtered_df['geometry'].apply(find_my_terrain)
     filtered_df = filtered_df[~filtered_df['terrain_label'].isin([0])]
@@ -94,7 +95,7 @@ def add_label_and_filter(filtered_df):
 
 
 def save_to_geojson(filtered_df):
-    
+
     filtered_df.to_file("final_data.geojson", driver='GeoJSON')
     print("The final dataframe has been saved to final_data.geojson")
     return None
