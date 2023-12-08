@@ -3,7 +3,7 @@ import ee
 import argparse as ap
 
 service_account = 'earth-engine-rafi@rafi-usa.iam.gserviceaccount.com'
-credentials = ee.ServiceAccountCredentials(service_account, '.private-key.json')
+credentials = ee.ServiceAccountCredentials(service_account, 'private-key.json')
 ee.Initialize(credentials)
 
 parser = ap.ArgumentParser()
