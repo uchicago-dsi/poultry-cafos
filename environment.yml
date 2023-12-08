@@ -40,3 +40,4 @@ dependencies:
     - scikit-learn
     - shapely
     - torchvision
+    - earthengine-api
