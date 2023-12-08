@@ -41,3 +41,5 @@ dependencies:
     - shapely
     - torchvision
     - earthengine-api
+    - pystac_client
+    - planetary_computer
