@@ -4,7 +4,7 @@ __pycache__/
 *.npz
 
 # Where all the model training and inference results are stored
-output/
+#output/
 
 ## Tile index, these should be automatically downloaded by cafo.utils.NAIPTileIndex
 data/tmp/
@@ -35,4 +35,4 @@ data/runs/
 scripts/mount*
 
 ## Google Earth Engine Credentials
-.private-key.json
+#private-key.json
