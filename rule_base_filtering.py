@@ -6,6 +6,8 @@ service_account = 'earth-engine-rafi@rafi-usa.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'private-key.json')
 ee.Initialize(credentials)
 
+print("Authenticated (for testing)")
+
 parser = ap.ArgumentParser()
 parser.add_argument("path", help="path to the file")
 args = parser.parse_args()
