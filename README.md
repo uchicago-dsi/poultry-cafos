@@ -55,7 +55,7 @@ python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output
 It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
 
 ## Run the filtering
-Download the [JSON file](https://drive.google.com/file/d/1b0xy-sSq1jrLIkmIDYBzv4DqLer-ytUs/view?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`.
+Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
 
  Run the filtering script:
 
