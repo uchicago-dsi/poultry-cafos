@@ -40,3 +40,6 @@ dependencies:
     - scikit-learn
     - shapely
     - torchvision
+    - earthengine-api
+    - pystac_client
+    - planetary_computer
