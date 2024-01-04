@@ -1,3 +1,80 @@
+## Uchicago Clinic Instructions
+
+## Setup
+We are assuming you are using the Uchicago cluster and are able to ask for a node.\
+Before creating a conda environment, switch to the new solver using the following command because the old conda solver took a long time to solve:
+```bash
+conda update -n base conda
+```
+And then:
+```bash
+conda install -n base conda-libmamba-solver
+conda config --set solver libmamba
+```
+We can set conda up to use a temporary directory to store files while it's building:
+```bash
+export TMPDIR=/net/scratch/<your_CNET>/tmp
+```
+Then, to confirm that worked do:
+`echo $TMPDIR`
+
+Run the following commands to create a conda environment, "cafo", with the necessary dependencies for running the scripts and notebooks in this repository:
+```bash
+conda env create -f environment.yml
+conda activate cafo
+```
+
+## Run the Inference on specific area
+Use the command to get an image of desired area from NAIP:
+```bash
+python3 get_image.py --bbox xmin ymin xmax ymax
+```
+xmin ymin xmax ymax refers to the bounding box of the desired area. It gets the most recent area that has the largest overlap area to the bounding box.
+e.g. this will run for an area in the North Carolina.
+```bash
+python3 get_image.py --bbox -77.61704236937271 34.85283247747748 -77.5621360306273 34.89787752252252
+```
+The tiff files will be saved under: `/net/projects/rafi/tifs/`\
+The paths of tiff files will be written in `data/test-input.txt`
+
+### Run the inference
+Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt) of the running model and save it under `output` folder.
+```bash
+python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
+```
+The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this:
+```bash
+image_fn
+"output/m_3407628_ne_18_060_20201018_predictions.tif"
+```
+### Run the post process
+Run the `postprocessing.py` script:
+```bash
+python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output/test-output.geojson --input_dir output
+```
+It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
+
+## Run the filtering
+Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
+
+ Run the filtering script:
+
+```bash
+python3 rule_base_filtering.py path_to_geojson_file
+```
+The script generates a final prediction geojson file in `output/final_data.geojson`
+
+
+
+
+
+
+
+
+
+
+Below here is the Microsoft README
+
 # Poultry barn mapping
 
 **Jump to: [Setup](#setup) | [Dataset and pretrained models](#dataset-and-pretrained-models) | [Model training and evaluation](#model-training-and-evaluation) | [Dataset creation and filtering](#dataset-creation-and-filtering)**
@@ -166,8 +243,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
