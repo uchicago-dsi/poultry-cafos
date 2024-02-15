@@ -23,7 +23,10 @@ Run the following commands to create a conda environment, "cafo", with the neces
 conda env create -f environment.yml
 conda activate cafo
 ```
-
+If this is not working, go back to check whether you are on dev branch. If not, switch to dev branch by: 
+```bash
+git checkout dev
+```
 ## Run the Inference on specific area
 Use the command to get an image of desired area from NAIP:
 ```bash
