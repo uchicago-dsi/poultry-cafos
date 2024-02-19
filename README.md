@@ -42,7 +42,7 @@ Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poult
 ```bash
 python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
 ```
-The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this:
+The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this (each output filename will be different):
 ```bash
 image_fn
 "output/m_3407628_ne_18_060_20201018_predictions.tif"
@@ -62,7 +62,7 @@ Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlV
 ```bash
 python3 rule_base_filtering.py path_to_geojson_file
 ```
-The script generates a final prediction geojson file in `output/final_data.geojson`
+The script generates a final prediction geojson file in `final_data.geojson`
 
 
 

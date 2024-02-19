@@ -1,0 +1,2 @@
+image_fn
+"/net/projects/rafi/example-tifs/m_3407704_sw_18_060_20200930.tif"
