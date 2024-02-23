@@ -1,6 +1,8 @@
 import geopandas as gpd
 import ee
 import argparse as ap
+from shapely.geometry import box
+from geopandas.tools import sjoin
 
 service_account = 'earth-engine-rafi@rafi-usa.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'private-key.json')
@@ -93,6 +95,37 @@ def add_label_and_filter(filtered_df):
     print("The dataframe has", len(filtered_df), "rows after label filtering")
     return filtered_df
 
+def filter_out_downtown_charlotte(df):
+    '''
+    Filter out items located in the downtown Charlotte area using the defined bounding box.
+    '''
+    downtown_bbox = (-80.857, 35.215, -80.836, 35.230)
+    downtown_polygon = box(*downtown_bbox)
+ 
+    df['is_in_downtown'] = df['geometry'].apply(lambda x: x.centroid.within(downtown_polygon))
+    # Filter out those within the downtown area
+    filtered_df = df[~df['is_in_downtown']].copy()
+    print("The dataframe has", len(filtered_df), "rows after removing dt area")
+    return filtered_df
+
+def filter_out_coastlines(df, coastline_data, buffer_distance):
+    '''
+    Filter out polygons that are within a specified buffer distance from the coastline.
+    '''
+    # Create a buffer around coastlines
+    coastline_data = coastline_data.to_crs(epsg=32633)
+    coastline_buffer = coastline_data.buffer(buffer_distance)
+    coastline_buffer_gdf = gpd.GeoDataFrame(geometry=gpd.GeoSeries(coastline_buffer))
+    coastline_buffer_gdf = coastline_buffer_gdf.to_crs(df.crs)
+    
+    # Spatial Join
+    intersections = sjoin(df, coastline_buffer_gdf, how="inner", op='intersects', lsuffix='_left', rsuffix='_right')
+
+    # Filter out polygons that intersect with the coastline buffer
+    filtered_df = df[~df.index.isin(intersections.index)].copy()
+
+    print("The dataframe has", len(filtered_df), "rows after removing coastline area")
+    return filtered_df
 
 def save_to_geojson(filtered_df):
 
@@ -104,8 +137,11 @@ def save_to_geojson(filtered_df):
 def main():
     df = load_data(args.path)
     filtered_df = filter_by_postprocess_rule(df)
-    filtered_df = add_label_and_filter(filtered_df)
-    save_to_geojson(filtered_df)
+    filtered_df_1 = add_label_and_filter(filtered_df)
+    filtered_df_2 = filter_out_downtown_charlotte(filtered_df_1)
+    coastline = gpd.read_file('tl_2019_us_coastline/tl_2019_us_coastline.shp')
+    filtered_df_3 = filter_out_coastlines(filtered_df_2, coastline, buffer_distance=200)
+    save_to_geojson(filtered_df_3)
 
 if __name__ == "__main__":
     main()
