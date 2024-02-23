@@ -127,6 +127,31 @@ def filter_out_coastlines(df, coastline_data, buffer_distance):
     print("The dataframe has", len(filtered_df), "rows after removing coastline area")
     return filtered_df
 
+def filter_out_airports(df, airport_data, dist_km):
+    '''
+    ** Need to have airports.geojson in root directory first **
+    Filter out the poultry barns which are at within a range of distance (buffer) of an international airport
+
+    Input:
+        df: a dataframe that has been filtered by the postprocess rule and filter down to the desired location
+        airport_data: a dataframe of international airports (could either be filtered to the desired location or unfiltered)
+        dist_km: a buffer distance in kilometers (integer) that reasonably rules out the existence of poultry barns
+
+    Output:
+        df_clean: poultry barns data excluding the airports'''
+    
+    # Transform buffer distance in kilometers to projection distance in EPSG 4326
+    dist_meters = dist_km * 1000
+    dist_project = dist_meters / 111120
+
+    # Creat the buffer
+    buffer_series = airport_data[['geometry']].buffer(dist_project)
+    buffer_gpd = gpd.GeoDataFrame(geometry=buffer_series)
+    intersection = df.overlay(buffer_gpd, how='intersection') # find barns within a range of distance of an airport
+    df_clean = df.overlay(intersection, how='difference') # exclude the intersection
+
+    return df_clean
+
 def save_to_geojson(filtered_df):
 
     filtered_df.to_file("final_data.geojson", driver='GeoJSON')
