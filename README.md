@@ -45,6 +45,10 @@ Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poult
 ```bash
 python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
 ```
+If this returns error: CUDA isn't available, run this and reactivate cafo. The inference.py should be abla to run now. 
+```bash
+srun -p general -t 6:00:00 --cpus-per-task=2 --mem=120GB --gres=gpu:1  --pty /bin/bash
+```
 The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this:
 ```bash
 image_fn
