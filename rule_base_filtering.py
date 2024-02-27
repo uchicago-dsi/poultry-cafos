@@ -97,20 +97,26 @@ def exclude_on_location(df):
     intersection_downtwon = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     print("Number of barns in downtown area:", len(intersection_downtwon))
     filtered_df = df[~df.index.isin(intersection_downtwon.index)].copy()
+    print("Current dataframe has", len(filtered_df), "rows")
+
 
     intersection_coastline = sjoin(filtered_df, coastline_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     print("Number of barns in coastline area:", len(intersection_coastline))
     filtered_df = filtered_df[~filtered_df.index.isin(intersection_coastline.index)].copy()
+    
+    print("Current dataframe has", len(filtered_df), "rows")
 
     intersection_water = sjoin(filtered_df, water_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     print("Number of barns in water area:", len(intersection_water))
     filtered_df = filtered_df[~filtered_df.index.isin(intersection_water.index)].copy()
 
+    print("Current dataframe has", len(filtered_df), "rows")
+
     intersection_airports = filtered_df.overlay(airports_polygon, how='intersection')
     print("Number of barns in airports area:", len(intersection_airports))
-    filtered_df = df.overlay(intersection_airports, how='difference')
+    filtered_df = filtered_df.overlay(intersection_airports, how='difference')
 
-    print("The dataframe has", len(filtered_df), "rows after revoming downtown, water and coastline.")
+    print("The dataframe has", len(filtered_df), "rows after removing downtown, water and coastline.")
     return filtered_df
 
 def get_label_from_ee(df):
