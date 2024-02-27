@@ -79,10 +79,21 @@ def get_water_cover(df):
     water_polygon = water_polygon.to_crs(df.crs)
     return water_polygon
 
+def get_airports(df):
+    '''
+    get airports and 200m surroundings
+    '''
+    airports_buffer = gpd.read_file('data/geojson_to_filter_out/airports_buffer_nc.geojson')
+    airports_buffer = airports_buffer.to_crs(df.crs)
+
+    return airports_buffer
+
 def exclude_on_location(df):
     downtown_polygon = get_downtown(df)
     coastline_polygon = get_coastlines(df, 150)
     water_polygon = get_water_cover(df)
+    airports_polygon = get_airports(df)
+
     intersection_downtwon = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     print("Number of barns in downtown area:", len(intersection_downtwon))
     filtered_df = df[~df.index.isin(intersection_downtwon.index)].copy()
@@ -94,6 +105,10 @@ def exclude_on_location(df):
     intersection_water = sjoin(filtered_df, water_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     print("Number of barns in water area:", len(intersection_water))
     filtered_df = filtered_df[~filtered_df.index.isin(intersection_water.index)].copy()
+
+    intersection_airports = filtered_df.overlay(airports_polygon, how='intersection')
+    print("Number of barns in airports area:", len(intersection_airports))
+    filtered_df = df.overlay(intersection_airports, how='difference')
 
     print("The dataframe has", len(filtered_df), "rows after revoming downtown, water and coastline.")
     return filtered_df
