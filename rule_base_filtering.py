@@ -61,7 +61,7 @@ def get_coastlines(df, buffer_distance):
     get areas that are within a specified buffer distance from the coastline.
     '''
     # Create a buffer around coastlines
-    coastline = gpd.read_file('tl_2019_us_coastline/tl_2019_us_coastline.shp')
+    coastline = gpd.read_file('data/geojson_to_filter_out/tl_2019_us_coastline/tl_2019_us_coastline.shp')
     # convert to crs where the unit in buffer is meter
     coastline_data = coastline.to_crs(epsg=32633)
     coastline_buffer = coastline_data.buffer(buffer_distance)
@@ -94,29 +94,28 @@ def exclude_on_location(df):
     water_polygon = get_water_cover(df)
     airports_polygon = get_airports(df)
 
-    intersection_downtwon = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    print("Number of barns in downtown area:", len(intersection_downtwon))
-    filtered_df = df[~df.index.isin(intersection_downtwon.index)].copy()
-    print("Current dataframe has", len(filtered_df), "rows")
-
+    intersection_downtown = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    # remove duplicated index in intesection
+    intersection_downtown_unique = intersection_downtown[~intersection_downtown.index.duplicated(keep='first')]
+    print("Number of barns in downtown area:", len(intersection_downtown_unique))
+    filtered_df = df[~df.index.isin(intersection_downtown_unique.index)].copy()
 
     intersection_coastline = sjoin(filtered_df, coastline_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    print("Number of barns in coastline area:", len(intersection_coastline))
-    filtered_df = filtered_df[~filtered_df.index.isin(intersection_coastline.index)].copy()
-    
-    print("Current dataframe has", len(filtered_df), "rows")
+    intersection_coastline_unique = intersection_coastline[~intersection_coastline.index.duplicated(keep='first')]
+    print("Number of barns in coastline area:", len(intersection_coastline_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_coastline_unique.index)].copy()
 
     intersection_water = sjoin(filtered_df, water_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    print("Number of barns in water area:", len(intersection_water))
-    filtered_df = filtered_df[~filtered_df.index.isin(intersection_water.index)].copy()
+    intersection_water_unique = intersection_water[~intersection_water.index.duplicated(keep='first')]
+    print("Number of barns in water area:", len(intersection_water_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_water_unique.index)].copy()
 
-    print("Current dataframe has", len(filtered_df), "rows")
+    intersection_airport = sjoin(filtered_df, airports_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    intersection_airport_unique = intersection_airport[~intersection_airport.index.duplicated(keep='first')]
+    print("Number of barns in airport area:", len(intersection_airport_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_airport_unique.index)].copy()  
 
-    intersection_airports = filtered_df.overlay(airports_polygon, how='intersection')
-    print("Number of barns in airports area:", len(intersection_airports))
-    filtered_df = filtered_df.overlay(intersection_airports, how='difference')
-
-    print("The dataframe has", len(filtered_df), "rows after removing downtown, water and coastline.")
+    print("The dataframe has", len(filtered_df), "rows after removing downtown, water, coastline and airport area.")
     return filtered_df
 
 def get_label_from_ee(df):
@@ -176,10 +175,10 @@ def save_to_geojson(filtered_df):
 def main():
     df = load_data(args.path)
     filtered_df = filter_by_postprocess_rule(df)
-    filtered_df_1 = exclude_on_location(filtered_df)
+    filtered_df = exclude_on_location(filtered_df)
     # uncomment the code to run the google earth api
     # filtered_df = exclude_on_land_cover(filtered_df)
-    save_to_geojson(filtered_df_1)
+    save_to_geojson(filtered_df)
 
 if __name__ == "__main__":
     main()
