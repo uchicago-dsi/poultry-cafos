@@ -26,10 +26,10 @@ conda activate cafo
 
 If this is not working, go back to check whether you are on filter_updates branch. If not, create a local branch that tracks the filter_updates branch by: 
 ```bash
-git checkout -b filter_updates origin/filter_updates``
+git checkout -b filter_updates origin/filter_updates
 ```
 
-Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter`\ and save it within `2024-winter-rafi-poultry-cafos\data`\
+Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter` and save it within `2024-winter-rafi-poultry-cafos\data`
 
 
 ### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
@@ -82,7 +82,7 @@ Download the [US poultry barn predictions](https://researchlabwuopendata.blob.co
 
 
 ### Step 2: Run the notebook that create North Carolina predictions
-Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks\Data Exploration.ipynb`\ and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson`\ will be saved in the `output`\ folder.
+Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks\Data Exploration.ipynb` and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
 
 ### Step 3: Run filtering script
 ```bash
@@ -92,7 +92,7 @@ In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojso
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
 
 ### Step 4(Optional): Visualizing the filtering
-Go back to the `notesbooks\Data Exploration.ipynb`\ and run the cells after "we plot the NC predictions". You should see 4 things happening:
+Go back to the `notesbooks\Data Exploration.ipynb` and run the cells after "we plot the NC predictions". You should see 4 things happening:
 1. Barns in downtown Charlotte and downtown Raleigh are filtered out
 2. Barns in coastline areas are filtered out
 3. Barns in water areas are filtered out
