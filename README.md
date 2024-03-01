@@ -34,7 +34,9 @@ Download all the necessary datasets for filtering. Go to [google drive](https://
 
 ### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
 
-## Method 1: If you want to run the Inference on specific area
+## Method 1: If you want to run the model yourself on a specific image(a small area)
+
+### Step 1: Get image
 Use the command to get an image of desired area from NAIP:
 ```bash
 python3 get_image.py --bbox xmin ymin xmax ymax
@@ -47,7 +49,7 @@ python3 get_image.py --bbox -77.61704236937271 34.85283247747748 -77.56213603062
 The tiff files will be saved under: `/net/projects/rafi/tifs/`\
 The paths of tiff files will be written in `data/test-input.txt`
 
-### Run the inference
+### Step 2: Run the inference
 Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt) of the running model and save it under `output` folder.
 ```bash
 python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
@@ -57,14 +59,14 @@ The predictions will be saved under output folder. You need to manually write th
 image_fn
 "output/m_3407628_ne_18_060_20201018_predictions.tif"
 ```
-### Run the post process
+### Step 3: Run the post process
 Run the `postprocessing.py` script:
 ```bash
 python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output/test-output.geojson --input_dir output
 ```
 It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
 
-### Run the filtering
+### Step 4: Run the filtering
 Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
 
  Run the filtering script:
