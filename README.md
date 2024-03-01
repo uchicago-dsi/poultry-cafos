@@ -89,6 +89,7 @@ Since the full US data will takes a long time to run, we will focus on North Car
 python3 rule_base_filtering.py path_to_geojson_file`
 ```
 In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojson`
+The file will generate and save the filtered version of predictions in `output/final_data.geojson`
 
 ### Step 4(Optional): Visualizing the filtering
 Go back to the `notesbooks\Data Exploration.ipynb`\ and run the cells after "we plot the NC predictions". You should see 4 things happening:
