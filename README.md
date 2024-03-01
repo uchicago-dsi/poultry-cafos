@@ -88,7 +88,7 @@ Since the full US data will takes a long time to run, we will focus on North Car
 
 ### Step 3: Run filtering script
 ```bash
-python3 rule_base_filtering.py path_to_geojson_file`
+python3 rule_base_filtering.py path_to_geojson_file
 ```
 In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojson`
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
