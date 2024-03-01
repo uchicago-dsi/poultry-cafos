@@ -168,8 +168,8 @@ def exclude_on_land_cover(filtered_df):
     return filtered_df
 
 def save_to_geojson(filtered_df):
-    filtered_df.to_file("final_data.geojson", driver='GeoJSON')
-    print("The final dataframe has been saved to final_data.geojson")
+    filtered_df.to_file("output/final_data.geojson", driver='GeoJSON')
+    print("The final dataframe has been saved to output/final_data.geojson")
     return None
 
 def main():
