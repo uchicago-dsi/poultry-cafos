@@ -24,7 +24,17 @@ conda env create -f environment.yml
 conda activate cafo
 ```
 
-## Run the Inference on specific area
+If this is not working, go back to check whether you are on filter_updates branch. If not, create a local branch that tracks the filter_updates branch by: 
+```bash
+git checkout -b filter_updates origin/filter_updates``
+```
+
+Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter`\ and save it within `2024-winter-rafi-poultry-cafos\data`\
+
+
+### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
+
+## Method 1: If you want to run the Inference on specific area
 Use the command to get an image of desired area from NAIP:
 ```bash
 python3 get_image.py --bbox xmin ymin xmax ymax
@@ -54,7 +64,7 @@ python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output
 ```
 It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
 
-## Run the filtering
+### Run the filtering
 Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
 
  Run the filtering script:
@@ -65,9 +75,27 @@ python3 rule_base_filtering.py path_to_geojson_file
 The script generates a final prediction geojson file in `final_data.geojson`
 
 
+## Method 2: Filtering Microsoft's predictions directly
+
+### Step 1: Download Microsoft's predictions directly
+Download the [US poultry barn predictions](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/full-usa-3-13-2021_filtered_deduplicated.gpkg) by Microsoft. Scroll to the bottom for Microsoft's README on their specific methods
 
 
+### Step 2: Run the notebook that create North Carolina predictions
+Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks\Data Exploration.ipynb`\ and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson`\ will be saved in the `output`\ folder.
 
+### Step 3: Run filtering script
+```bash
+python3 rule_base_filtering.py path_to_geojson_file`
+```
+In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojson`
+
+### Step 4(Optional): Visualizing the filtering
+Go back to the `notesbooks\Data Exploration.ipynb`\ and run the cells after "we plot the NC predictions". You should see 4 things happening:
+1. Barns in downtown Charlotte and downtown Raleigh are filtered out
+2. Barns in coastline areas are filtered out
+3. Barns in water areas are filtered out
+4. Barns in airports are filtered out.
 
 
 
