@@ -101,7 +101,7 @@ In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojso
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
 
 ### Step 4(Optional): Visualizing the filtering
-Go back to the `notesbooks\Data Exploration.ipynb` and run the cells after "we plot the NC predictions". You should see 4 things happening:
+Go back to the `notesbooks/Data Exploration.ipynb` and run the cells after "we plot the NC predictions". You should see 4 things happening:
 1. Barns in downtown Charlotte and downtown Raleigh are filtered out
 2. Barns in coastline areas are filtered out
 3. Barns in water areas are filtered out
