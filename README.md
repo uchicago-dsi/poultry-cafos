@@ -42,7 +42,7 @@ Use the command to get an image of desired area from NAIP:
 python3 get_image.py --bbox xmin ymin xmax ymax
 ```
 xmin ymin xmax ymax refers to the bounding box of the desired area. It gets the most recent area that has the largest overlap area to the bounding box.
-e.g. this will run for an area in the North Carolina.
+e.g. this will run for an area in the North Carolina coastline areas.
 ```bash
 python3 get_image.py --bbox -77.820908 34.384567 -77.283021 34.730686
 ```
