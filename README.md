@@ -59,6 +59,7 @@ If this returns error: CUDA isn't available, run this and reactivate cafo. The i
 ```bash
 srun -p general -t 6:00:00 --cpus-per-task=2 --mem=120GB --gres=gpu:1  --pty /bin/bash
 ```
+Note you will need to do `conda activate cafo` again after you enter the node.
 
 The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this (each output filename will be different):
 ```bash
