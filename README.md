@@ -87,7 +87,7 @@ The script generates a final prediction geojson file in `final_data.geojson`
 ## Method 2: Filtering Microsoft's predictions directly
 
 ### Step 1: Download Microsoft's predictions directly
-Download the [US poultry barn predictions](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/full-usa-3-13-2021_filtered_deduplicated.gpkg) by Microsoft. Scroll to the bottom for Microsoft's README on their specific methods
+Download the [US poultry barn predictions](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/full-usa-3-13-2021_filtered_deduplicated.gpkg) by Microsoft. Put the data into the `../data` folder. Scroll to the bottom for Microsoft's README on their specific methods
 
 
 ### Step 2: Run the notebook that create North Carolina predictions
