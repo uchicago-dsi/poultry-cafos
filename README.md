@@ -44,7 +44,7 @@ python3 get_image.py --bbox xmin ymin xmax ymax
 xmin ymin xmax ymax refers to the bounding box of the desired area. It gets the most recent area that has the largest overlap area to the bounding box.
 e.g. this will run for an area in the North Carolina.
 ```bash
-python3 get_image.py --bbox -77.61704236937271 34.85283247747748 -77.5621360306273 34.89787752252252
+python3 get_image.py --bbox -77.820908 34.384567 -77.283021 34.730686
 ```
 The tiff files will be saved under: `/net/projects/rafi/tifs/`\
 The paths of tiff files will be written in `data/test-input.txt`
