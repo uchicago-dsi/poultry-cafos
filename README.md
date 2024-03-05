@@ -91,7 +91,7 @@ Download the [US poultry barn predictions](https://researchlabwuopendata.blob.co
 
 
 ### Step 2: Run the notebook that create North Carolina predictions
-Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks/Data Exploration.ipynb` and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
+Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks/Data Exploration.ipynb` and run all cells in the section `Data Filtering`(before `Data Visualization`). A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
 
 ### Step 3: Run filtering script
 ```bash
@@ -101,7 +101,7 @@ In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojso
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
 
 ### Step 4(Optional): Visualizing the filtering
-Go back to the `notesbooks/Data Exploration.ipynb` and run the cells after "we plot the NC predictions". You should see 4 things happening:
+Go back to the `notesbooks/Data Exploration.ipynb` and run the cells in the `Data Visualization` section. You should see 4 things happening:
 1. Barns in downtown Charlotte and downtown Raleigh are filtered out
 2. Barns in coastline areas are filtered out
 3. Barns in water areas are filtered out
