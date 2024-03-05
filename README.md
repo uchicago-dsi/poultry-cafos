@@ -1,4 +1,4 @@
-## Uchicago Clinic Instructions
+## UChicago Data Science Clinic RAFI Project Instructions
 
 ## Setup
 We are assuming you are using the Uchicago cluster and are able to ask for a node.\
