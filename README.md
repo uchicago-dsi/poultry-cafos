@@ -29,7 +29,7 @@ If this is not working, go back to check whether you are on filter_updates branc
 git checkout -b filter_updates origin/filter_updates
 ```
 
-Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter` and save it within `2024-winter-rafi-poultry-cafos\data`
+Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter` and save it within `2024-winter-rafi-poultry-cafos/data`
 
 
 ### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
@@ -55,7 +55,7 @@ Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poult
 python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
 ```
 
-If this returns error: CUDA isn't available, run this and reactivate cafo. The inference.py should be abla to run now. 
+If this returns error: CUDA isn't available, run this and reactivate cafo. The inference.py should be able to run now. 
 ```bash
 srun -p general -t 6:00:00 --cpus-per-task=2 --mem=120GB --gres=gpu:1  --pty /bin/bash
 ```
@@ -91,7 +91,7 @@ Download the [US poultry barn predictions](https://researchlabwuopendata.blob.co
 
 
 ### Step 2: Run the notebook that create North Carolina predictions
-Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks\Data Exploration.ipynb` and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
+Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks/Data Exploration.ipynb` and run all cells before "we plot the NC predictions". A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
 
 ### Step 3: Run filtering script
 ```bash
