@@ -77,14 +77,16 @@ python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output
 It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
 
 ### Step 4: Run the filtering
-Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
+Currently, we are not running the Google Earth API because it takes a very long time to run it on the entire North Carolina. If you would like to do it, you can give the `main()` function an argument of `True`. You should then download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
 
- Run the filtering script:
+Run the filtering script:
 
 ```bash
 python3 rule_base_filtering.py path_to_geojson_file
 ```
 The script generates a final prediction geojson file in `final_data.geojson`
+
+
 
 
 ## Method 2: Filtering Microsoft's predictions directly
@@ -102,6 +104,9 @@ python3 rule_base_filtering.py /path/to/geojson/file
 ```
 In this case, the `/path/to/geojson/file` should be `output/nc_predictions.geojson`
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
+
+Note on step 3: currently we are not running the Google Earth API because it takes a very long time to run it on the entire North Carolina. If you would like to do it, you can give the `main()` function an argument of `True`. You should then download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
+
 
 ### Step 4(Optional): Visualizing the filtering
 Go back to the `notesbooks/Data Exploration.ipynb` and run the cells in the `Data Visualization` section. You should see 4 things happening:
