@@ -23,13 +23,14 @@ Run the following commands to create a conda environment, "cafo", with the neces
 conda env create -f environment.yml
 conda activate cafo
 ```
+The conda environment will take a bit of time to load but it should not be taking forever.
 
-If this is not working, go back to check whether you are on the correct branch. If not, create a local branch that tracks the filter_updates branch by: 
+If this is not working, go back to check whether you are on the correct branch. If not, create a local branch that tracks the dev branch by: 
 ```bash
-git checkout -b filter_updates origin/filter_updates
+git checkout -b dev origin/dev
 ```
 
-Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter` and save it within `2024-winter-rafi-poultry-cafos/data`
+Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter_out` and save it within `2024-winter-rafi-poultry-cafos/data`
 
 
 ### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
@@ -38,7 +39,7 @@ Download all the necessary datasets for filtering. Go to [google drive](https://
 
 ### Step 1: Get image
 
-Use the command to get an image of desired area from NAIP:
+Use the command to get an image of the desired area from NAIP:
 ```bash
 python3 get_image.py --bbox xmin ymin xmax ymax
 ```
@@ -97,9 +98,9 @@ Since the full US data will takes a long time to run, we will focus on North Car
 
 ### Step 3: Run filtering script
 ```bash
-python3 rule_base_filtering.py path_to_geojson_file
+python3 rule_base_filtering.py /path/to/geojson/file
 ```
-In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojson`
+In this case, the `/path/to/geojson/file` should be `output/nc_predictions.geojson`
 The file will generate and save the filtered version of predictions in `output/final_data.geojson`
 
 ### Step 4(Optional): Visualizing the filtering
