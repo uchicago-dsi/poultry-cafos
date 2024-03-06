@@ -29,6 +29,7 @@ dependencies:
     - parse
     - segmentation-models-pytorch>=0.2
     - tensorboard
+    - folium
     # moved packages
     - matplotlib
     - numpy
