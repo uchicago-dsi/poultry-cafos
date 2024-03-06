@@ -88,34 +88,17 @@ def get_airports(df):
 
     return airports_buffer
 
-def exclude_on_location(df):
-    downtown_polygon = get_downtown(df)
-    coastline_polygon = get_coastlines(df, 150)
-    water_polygon = get_water_cover(df)
-    airports_polygon = get_airports(df)
+def exclude_on_location(df, polygon, name):
+    '''
+    find the intersection between the predictions and polygon and exclude these predictions
+    '''
 
-    intersection_downtown = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    intersection = sjoin(df, polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
     # remove duplicated index in intesection
-    intersection_downtown_unique = intersection_downtown[~intersection_downtown.index.duplicated(keep='first')]
-    print("Number of barns in downtown area:", len(intersection_downtown_unique))
-    filtered_df = df[~df.index.isin(intersection_downtown_unique.index)].copy()
+    intersection_unique = intersection[~intersection.index.duplicated(keep='first')]
+    print(f"Number of barns in {name} area:", len(intersection_unique))
+    filtered_df = df[~df.index.isin(intersection_unique.index)].copy()
 
-    intersection_coastline = sjoin(filtered_df, coastline_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    intersection_coastline_unique = intersection_coastline[~intersection_coastline.index.duplicated(keep='first')]
-    print("Number of barns in coastline area:", len(intersection_coastline_unique))
-    filtered_df = filtered_df[~filtered_df.index.isin(intersection_coastline_unique.index)].copy()
-
-    intersection_water = sjoin(filtered_df, water_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    intersection_water_unique = intersection_water[~intersection_water.index.duplicated(keep='first')]
-    print("Number of barns in water area:", len(intersection_water_unique))
-    filtered_df = filtered_df[~filtered_df.index.isin(intersection_water_unique.index)].copy()
-
-    intersection_airport = sjoin(filtered_df, airports_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
-    intersection_airport_unique = intersection_airport[~intersection_airport.index.duplicated(keep='first')]
-    print("Number of barns in airport area:", len(intersection_airport_unique))
-    filtered_df = filtered_df[~filtered_df.index.isin(intersection_airport_unique.index)].copy()  
-
-    print("The dataframe has", len(filtered_df), "rows after removing downtown, water, coastline and airport area.")
     return filtered_df
 
 def get_label_from_ee(df):
@@ -172,12 +155,24 @@ def save_to_geojson(filtered_df):
     print("The final dataframe has been saved to output/final_data.geojson")
     return None
 
-def main():
+def main(ee=False):
     df = load_data(args.path)
+    #get polygon information
+    downtown_polygon = get_downtown(df)
+    coastline_polygon = get_coastlines(df, 150)
+    water_polygon = get_water_cover(df)
+    airports_polygon = get_airports(df)
+    #run Microsoft's preprocessing
     filtered_df = filter_by_postprocess_rule(df)
-    filtered_df = exclude_on_location(filtered_df)
-    # uncomment the code to run the google earth api
-    # filtered_df = exclude_on_land_cover(filtered_df)
+    #run the exclusion rules
+    filtered_df = exclude_on_location(filtered_df,downtown_polygon,'downtown')
+    filtered_df = exclude_on_location(filtered_df,coastline_polygon,'coastline')
+    filtered_df = exclude_on_location(filtered_df,water_polygon,'water')
+    filtered_df = exclude_on_location(filtered_df,airports_polygon,'airport')
+    if ee:
+        filtered_df = exclude_on_land_cover(filtered_df)
+    print("The dataframe has", len(filtered_df), "rows after removing downtown, water, coastline and airport area.")
+    #save to the output folder
     save_to_geojson(filtered_df)
 
 if __name__ == "__main__":
