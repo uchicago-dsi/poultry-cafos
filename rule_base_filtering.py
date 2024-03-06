@@ -1,6 +1,9 @@
 import geopandas as gpd
+import pandas as pd
 import ee
 import argparse as ap
+from shapely.geometry import box
+from geopandas.tools import sjoin
 
 service_account = 'earth-engine-rafi@rafi-usa.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'private-key.json')
@@ -25,7 +28,6 @@ def load_data(path):
     print('The original datafrome has',len(df),'rows')
     return df
 
-
 def filter_by_postprocess_rule(df):
     '''
     Filter the dataframe by the postprocess rule
@@ -42,8 +44,81 @@ def filter_by_postprocess_rule(df):
     print("The dataframe has", len(filtered_df), "rows after post-processing")
     return filtered_df
 
+def get_downtown(df):
+    '''
+    get the shapefile of downtown areas.
+    '''
 
-def find_my_terrain(df):
+    charlotte = gpd.read_file('data/geojson_to_filter_out/charlotte.geojson')
+    raleigh = gpd.read_file('data/geojson_to_filter_out/raleigh.geojson')
+    downtown = gpd.GeoDataFrame(pd.concat([charlotte, raleigh]))
+    
+    downtown_polygon = downtown.to_crs(df.crs)
+    return downtown_polygon
+
+def get_coastlines(df, buffer_distance):
+    '''
+    get areas that are within a specified buffer distance from the coastline.
+    '''
+    # Create a buffer around coastlines
+    coastline = gpd.read_file('data/geojson_to_filter_out/tl_2019_us_coastline/tl_2019_us_coastline.shp')
+    # convert to crs where the unit in buffer is meter
+    coastline_data = coastline.to_crs(epsg=32633)
+    coastline_buffer = coastline_data.buffer(buffer_distance)
+    coastline_buffer_gdf = gpd.GeoDataFrame(geometry=coastline_buffer)
+    # match crs
+    coastline_buffer_gdf = coastline_buffer_gdf.to_crs(df.crs)
+    return coastline_buffer_gdf
+
+def get_water_cover(df):
+    '''
+    get water cover areas
+    '''
+    water_polygon = gpd.read_file('data/geojson_to_filter_out/NC_water_bodies.geojson')
+    # water_polygon = gpd.read_file('USA_Detailed_Water_Bodies.geojson')
+    water_polygon = water_polygon.to_crs(df.crs)
+    return water_polygon
+
+def get_airports(df):
+    '''
+    get airports and 200m surroundings
+    '''
+    airports_buffer = gpd.read_file('data/geojson_to_filter_out/airports_buffer_nc.geojson')
+    airports_buffer = airports_buffer.to_crs(df.crs)
+
+    return airports_buffer
+
+def exclude_on_location(df):
+    downtown_polygon = get_downtown(df)
+    coastline_polygon = get_coastlines(df, 150)
+    water_polygon = get_water_cover(df)
+    airports_polygon = get_airports(df)
+
+    intersection_downtown = sjoin(df, downtown_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    # remove duplicated index in intesection
+    intersection_downtown_unique = intersection_downtown[~intersection_downtown.index.duplicated(keep='first')]
+    print("Number of barns in downtown area:", len(intersection_downtown_unique))
+    filtered_df = df[~df.index.isin(intersection_downtown_unique.index)].copy()
+
+    intersection_coastline = sjoin(filtered_df, coastline_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    intersection_coastline_unique = intersection_coastline[~intersection_coastline.index.duplicated(keep='first')]
+    print("Number of barns in coastline area:", len(intersection_coastline_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_coastline_unique.index)].copy()
+
+    intersection_water = sjoin(filtered_df, water_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    intersection_water_unique = intersection_water[~intersection_water.index.duplicated(keep='first')]
+    print("Number of barns in water area:", len(intersection_water_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_water_unique.index)].copy()
+
+    intersection_airport = sjoin(filtered_df, airports_polygon, how="inner", predicate='intersects', lsuffix='_left', rsuffix='_right')
+    intersection_airport_unique = intersection_airport[~intersection_airport.index.duplicated(keep='first')]
+    print("Number of barns in airport area:", len(intersection_airport_unique))
+    filtered_df = filtered_df[~filtered_df.index.isin(intersection_airport_unique.index)].copy()  
+
+    print("The dataframe has", len(filtered_df), "rows after removing downtown, water, coastline and airport area.")
+    return filtered_df
+
+def get_label_from_ee(df):
     '''
     Find the terrain label for a polygon in the dataframe
 
@@ -74,8 +149,7 @@ def find_my_terrain(df):
 
     return majority_class_info['label']
 
-
-def add_label_and_filter(filtered_df):
+def exclude_on_land_cover(filtered_df):
     '''
     Add the terrain label as new column to the dataframe and filter out
     the ones that are water label(0)
@@ -86,25 +160,24 @@ def add_label_and_filter(filtered_df):
     Output:
         filtered_df: a dataframe that has been filtered by the postprocess
         rule and terrain label'''
-    filtered_df['terrain_label'] = filtered_df['geometry'].apply(find_my_terrain)
+    filtered_df['terrain_label'] = filtered_df['geometry'].apply(get_label_from_ee)
     filtered_df = filtered_df[~filtered_df['terrain_label'].isin([0])]
 
     # Print the filtered dataframe
     print("The dataframe has", len(filtered_df), "rows after label filtering")
     return filtered_df
 
-
 def save_to_geojson(filtered_df):
-
-    filtered_df.to_file("final_data.geojson", driver='GeoJSON')
-    print("The final dataframe has been saved to final_data.geojson")
+    filtered_df.to_file("output/final_data.geojson", driver='GeoJSON')
+    print("The final dataframe has been saved to output/final_data.geojson")
     return None
-
 
 def main():
     df = load_data(args.path)
     filtered_df = filter_by_postprocess_rule(df)
-    filtered_df = add_label_and_filter(filtered_df)
+    filtered_df = exclude_on_location(filtered_df)
+    # uncomment the code to run the google earth api
+    # filtered_df = exclude_on_land_cover(filtered_df)
     save_to_geojson(filtered_df)
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-## Uchicago Clinic Instructions
+## UChicago Data Science Clinic RAFI Project Instructions
 
 ## Setup
 We are assuming you are using the Uchicago cluster and are able to ask for a node.\
@@ -23,45 +23,59 @@ Run the following commands to create a conda environment, "cafo", with the neces
 conda env create -f environment.yml
 conda activate cafo
 ```
-If this is not working, go back to check whether you are on dev branch. If not, switch to dev branch by: 
+
+If this is not working, go back to check whether you are on the correct branch. If not, create a local branch that tracks the filter_updates branch by: 
 ```bash
-git checkout dev
+git checkout -b filter_updates origin/filter_updates
 ```
-## Run the Inference on specific area
+
+Download all the necessary datasets for filtering. Go to [google drive](https://drive.google.com/drive/folders/1bbgJTW_s_rVT3LhGZlAOOIREoBlDtR0J?usp=drive_link), download the entire folder named `geojson_to_filter` and save it within `2024-winter-rafi-poultry-cafos/data`
+
+
+### There are two methods in which we can run the predictions, either by running the model on a specific region(image) or by downloading Microsoft's predictions and run the filtering on their generated predictions.
+
+## Method 1: If you want to run the model yourself on a specific image(a small area)
+
+### Step 1: Get image
+
 Use the command to get an image of desired area from NAIP:
 ```bash
 python3 get_image.py --bbox xmin ymin xmax ymax
 ```
 xmin ymin xmax ymax refers to the bounding box of the desired area. It gets the most recent area that has the largest overlap area to the bounding box.
-e.g. this will run for an area in the North Carolina.
+e.g. this will run for an area in the North Carolina coastline areas.
 ```bash
-python3 get_image.py --bbox -77.61704236937271 34.85283247747748 -77.5621360306273 34.89787752252252
+python3 get_image.py --bbox -77.820908 34.384567 -77.283021 34.730686
 ```
 The tiff files will be saved under: `/net/projects/rafi/tifs/`\
 The paths of tiff files will be written in `data/test-input.txt`
 
-### Run the inference
+### Step 2: Run the inference
 Download the [Weights](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt) of the running model and save it under `output` folder.
 ```bash
 python inference.py --input_fn data/test-input.txt --model_fn output/train-all_unet_0.5_0.01_rotation_best-checkpoint.pt --output_dir output
 ```
-If this returns error: CUDA isn't available, run this and reactivate cafo. The inference.py should be abla to run now. 
+
+If this returns error: CUDA isn't available, run this and reactivate cafo. The inference.py should be able to run now. 
 ```bash
 srun -p general -t 6:00:00 --cpus-per-task=2 --mem=120GB --gres=gpu:1  --pty /bin/bash
 ```
-The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this:
+Note you will need to do `conda activate cafo` again after you enter the node.
+
+The predictions will be saved under output folder. You need to manually write these paths in `data/test-postprocessing.txt`. The text file will look like this (each output filename will be different):
+
 ```bash
 image_fn
 "output/m_3407628_ne_18_060_20201018_predictions.tif"
 ```
-### Run the post process
+### Step 3: Run the post process
 Run the `postprocessing.py` script:
 ```bash
 python postprocess.py --input_fn data/test-postprocessing.txt --output_fn output/test-output.geojson --input_dir output
 ```
 It will generate a geojson file under `output` folder. It contains all the original predictions from the model with extra information from post processing, which will be used later to filter the false positives.
 
-## Run the filtering
+### Step 4: Run the filtering
 Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlVbKwSWJY7eXqOJaC2w?usp=drive_link) for authenticating to Google Earth Engine and save it in the root directory of the repository as `private-key.json`. It will have a name something like `rafi-usa-<id_string>.json` in Google Drive.
 
  Run the filtering script:
@@ -69,12 +83,31 @@ Download the [JSON file](https://drive.google.com/drive/folders/1DSmn-vF4FXlxHlV
 ```bash
 python3 rule_base_filtering.py path_to_geojson_file
 ```
-The script generates a final prediction geojson file in `output/final_data.geojson`
+The script generates a final prediction geojson file in `final_data.geojson`
 
 
+## Method 2: Filtering Microsoft's predictions directly
+
+### Step 1: Download Microsoft's predictions directly
+Download the [US poultry barn predictions](https://researchlabwuopendata.blob.core.windows.net/poultry-cafo/full-usa-3-13-2021_filtered_deduplicated.gpkg) by Microsoft. Put the data into the `2024-winter-rafi-poultry-cafos/data` folder. Scroll to the bottom for Microsoft's README on their specific methods
 
 
+### Step 2: Run the notebook that create North Carolina predictions
+Since the full US data will takes a long time to run, we will focus on North Carolina first. Go to `notesbooks/Data Exploration.ipynb` and run all cells in the section `Data Filtering`(before `Data Visualization`). A geojson file named `../output/nc_predictions.geojson` will be saved in the `output` folder.
 
+### Step 3: Run filtering script
+```bash
+python3 rule_base_filtering.py path_to_geojson_file
+```
+In this case, the `path_to_geojson_file` should be `output/nc_predictions.geojson`
+The file will generate and save the filtered version of predictions in `output/final_data.geojson`
+
+### Step 4(Optional): Visualizing the filtering
+Go back to the `notesbooks/Data Exploration.ipynb` and run the cells in the `Data Visualization` section. You should see 4 things happening:
+1. Barns in downtown Charlotte and downtown Raleigh are filtered out
+2. Barns in coastline areas are filtered out
+3. Barns in water areas are filtered out
+4. Barns in airports are filtered out.
 
 
 
