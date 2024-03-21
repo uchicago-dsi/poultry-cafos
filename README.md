@@ -1,5 +1,9 @@
 # Poultry barn mapping
 
+Contributor: Yuxi He(heyuxi@uchicago.edu)
+
+---
+
 **Jump to: [Setup](#setup) | [Dataset and pretrained models](#dataset-and-pretrained-models) | [Model training and evaluation](#model-training-and-evaluation) | [Dataset creation and filtering](#dataset-creation-and-filtering)**
 
 This repo contains code for training, evaluating, and running deep learning models for detecting poultry barns from high-resolution aerial imagery as well as a US-wide datasets of predicted poultry barn locations to accompany the paper ["Mapping industrial poultry operations at scale with deep learning and aerial imagery"](https://arxiv.org/pdf/2112.10988.pdf).
