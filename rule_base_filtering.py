@@ -50,56 +50,32 @@ def filter_by_postprocess_rule(df):
     return filtered_df
 
 
-def get_downtown(df):
+def get_geojson(path, df):
     """
     get the shapefile of downtown areas.
     """
 
-    charlotte = gpd.read_file("data/geojson_to_filter_out/charlotte.geojson")
-    raleigh = gpd.read_file("data/geojson_to_filter_out/raleigh.geojson")
-    downtown = gpd.GeoDataFrame(pd.concat([charlotte, raleigh]))
+    geojson = gpd.read_file(path)
 
-    downtown_polygon = downtown.to_crs(df.crs)
-    return downtown_polygon
+    polygon = geojson.to_crs(df.crs)
+    return polygon
 
 
-def get_coastlines(df, buffer_distance):
+def get_geojson_with_buffer(path, df, buffer_distance):
     """
-    get areas that are within a specified buffer distance from the coastline.
+    get areas that are within a specified buffer distance.
     """
-    # Create a buffer around coastlines
-    coastline = gpd.read_file(
-        "data/geojson_to_filter_out/tl_2019_us_coastline/tl_2019_us_coastline.shp"
-    )
+    # Create a buffer around the geojson
+    geojson = gpd.read_file(path)
     # convert to crs where the unit in buffer is meter
-    coastline_data = coastline.to_crs(epsg=32633)
-    coastline_buffer = coastline_data.buffer(buffer_distance)
-    coastline_buffer_gdf = gpd.GeoDataFrame(geometry=coastline_buffer)
+    geojson_data = geojson.to_crs(epsg=32633)
+    geojson_buffer = geojson_data.buffer(buffer_distance)
+    geojson_buffer_gdf = gpd.GeoDataFrame(geometry=geojson_buffer)
     # match crs
-    coastline_buffer_gdf = coastline_buffer_gdf.to_crs(df.crs)
-    return coastline_buffer_gdf
+    geojson_buffer_gdf = geojson_buffer_gdf.to_crs(df.crs)
+    return geojson_buffer_gdf
 
 
-def get_water_cover(df):
-    """
-    get water cover areas
-    """
-    water_polygon = gpd.read_file("data/geojson_to_filter_out/NC_water_bodies.geojson")
-    # water_polygon = gpd.read_file('USA_Detailed_Water_Bodies.geojson')
-    water_polygon = water_polygon.to_crs(df.crs)
-    return water_polygon
-
-
-def get_airports(df):
-    """
-    get airports and 200m surroundings
-    """
-    airports_buffer = gpd.read_file(
-        "data/geojson_to_filter_out/airports_buffer_nc.geojson"
-    )
-    airports_buffer = airports_buffer.to_crs(df.crs)
-
-    return airports_buffer
 
 
 def exclude_on_location(df, polygon, name):
@@ -185,10 +161,11 @@ def save_to_geojson(filtered_df):
 def main(ee=False):
     df = load_data(args.path)
     # get polygon information
-    downtown_polygon = get_downtown(df)
-    coastline_polygon = get_coastlines(df, 150)
-    water_polygon = get_water_cover(df)
-    airports_polygon = get_airports(df)
+    downtown_polygon = get_geojson('data/geojson_to_filter_out/cities',df)
+    coastline_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/tl_2019_us_coastline',df, 150)
+    water_polygon =  get_geojson('data/geojson_to_filter_out/USA_Detailed_Water_Bodies.geojson',df)
+    #average airport size is between 1500 and 2500 meters
+    airports_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/airports.geojson',df, 1500)
     # run Microsoft's preprocessing
     filtered_df = filter_by_postprocess_rule(df)
     # run the exclusion rules
