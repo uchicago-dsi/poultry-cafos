@@ -30,6 +30,7 @@ dependencies:
     - segmentation-models-pytorch>=0.2
     - tensorboard
     - folium
+    - pyarrow
     # moved packages
     - matplotlib
     - numpy

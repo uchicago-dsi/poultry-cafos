@@ -161,7 +161,7 @@ def save_to_geojson(filtered_df):
 def main(ee=False):
     df = load_data(args.path)
     # get polygon information
-    downtown_polygon = get_geojson('data/geojson_to_filter_out/cities',df)
+    downtown_polygon = gpd.read_parquet('data/geojson_to_filter_out/municipalities___states.geoparquet')
     coastline_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/tl_2019_us_coastline',df, 150)
     water_polygon =  get_geojson('data/geojson_to_filter_out/USA_Detailed_Water_Bodies.geojson',df)
     #average airport size is between 1500 and 2500 meters
