@@ -161,18 +161,21 @@ def save_to_geojson(filtered_df):
 def main(ee=False):
     df = load_data(args.path)
     # get polygon information
-    downtown_polygon = gpd.read_parquet('data/geojson_to_filter_out/municipalities___states.geoparquet')
+    #downtown_polygon = gpd.read_parquet('data/geojson_to_filter_out/municipalities___states.geoparquet')
     coastline_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/tl_2019_us_coastline',df, 150)
     water_polygon =  get_geojson('data/geojson_to_filter_out/USA_Detailed_Water_Bodies.geojson',df)
+    # Park
+    park_polygon = get_geojson('data/geojson_to_filter_out/us_parks_arcgis.geojson',df)
     #average airport size is between 1500 and 2500 meters
     airports_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/airports.geojson',df, 1500)
     # run Microsoft's preprocessing
     filtered_df = filter_by_postprocess_rule(df)
     # run the exclusion rules
-    filtered_df = exclude_on_location(filtered_df, downtown_polygon, "downtown")
+    #filtered_df = exclude_on_location(filtered_df, downtown_polygon, "downtown")
     filtered_df = exclude_on_location(filtered_df, coastline_polygon, "coastline")
     filtered_df = exclude_on_location(filtered_df, water_polygon, "water")
     filtered_df = exclude_on_location(filtered_df, airports_polygon, "airport")
+    filtered_df = exclude_on_location(filtered_df, park_polygon, "park")
     if ee:
         filtered_df = exclude_on_land_cover(filtered_df)
     print(
