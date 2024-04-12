@@ -1,2 +1,2 @@
 image_fn
-"output/m_3407704_sw_18_060_20200930_predictions.tif"
+m_4209501_sw_15_060_20190711_predictions.tif

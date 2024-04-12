@@ -153,29 +153,36 @@ def exclude_on_land_cover(filtered_df):
 
 
 def save_to_geojson(filtered_df):
-    filtered_df.to_file("output/final_data.geojson", driver="GeoJSON")
-    print("The final dataframe has been saved to output/final_data.geojson")
+    filtered_df.to_file("output/final_data_b.geojson", driver="GeoJSON")   # this file name is only for verifying
+    print("The final dataframe has been saved to output/final_data_b.geojson")
     return None
 
 
 def main(ee=False):
     df = load_data(args.path)
+    
     # get polygon information
     #downtown_polygon = gpd.read_parquet('data/geojson_to_filter_out/municipalities___states.geoparquet')
     coastline_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/tl_2019_us_coastline',df, 150)
     water_polygon =  get_geojson('data/geojson_to_filter_out/USA_Detailed_Water_Bodies.geojson',df)
-    # Park
-    park_polygon = get_geojson('data/geojson_to_filter_out/us_parks_arcgis.geojson',df)
-    #average airport size is between 1500 and 2500 meters
-    airports_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/airports.geojson',df, 1500)
+    airports_polygon = get_geojson_with_buffer('data/geojson_to_filter_out/arcgis_FAA-Airports.geojson',df, 1500) #avg airport size: 1500-2500m
+    parks_polygon =  get_geojson('data/geojson_to_filter_out/us_parks_arcgis.geojson',df)
+    mountains_polygon =  get_geojson('data/geojson_to_filter_out/Landscape_-_U.S._Mountain_Ranges.geojson',df)
+    roads_polygon =  get_geojson('data/geojson_to_filter_out/arcgis_North_American_Roads.geojson',df)
+
     # run Microsoft's preprocessing
     filtered_df = filter_by_postprocess_rule(df)
+    
     # run the exclusion rules
     #filtered_df = exclude_on_location(filtered_df, downtown_polygon, "downtown")
     filtered_df = exclude_on_location(filtered_df, coastline_polygon, "coastline")
     filtered_df = exclude_on_location(filtered_df, water_polygon, "water")
     filtered_df = exclude_on_location(filtered_df, airports_polygon, "airport")
-    filtered_df = exclude_on_location(filtered_df, park_polygon, "park")
+    filtered_df = exclude_on_location(filtered_df, parks_polygon, "parks")
+    filtered_df = exclude_on_location(filtered_df, mountains_polygon, "mountains")
+    filtered_df = exclude_on_location(filtered_df, roads_polygon, "roads")
+
+
     if ee:
         filtered_df = exclude_on_land_cover(filtered_df)
     print(
