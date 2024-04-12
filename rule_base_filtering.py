@@ -169,7 +169,10 @@ def main(ee=False):
     parks_polygon =  get_geojson('data/geojson_to_filter_out/us_parks_arcgis.geojson',df)
     mountains_polygon =  get_geojson('data/geojson_to_filter_out/Landscape_-_U.S._Mountain_Ranges.geojson',df)
     roads_polygon =  get_geojson('data/geojson_to_filter_out/arcgis_North_American_Roads.geojson',df)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8d5347560fcf455e5db681c3c4c7f597d3d1f25f
     # run Microsoft's preprocessing
     filtered_df = filter_by_postprocess_rule(df)
     
@@ -181,8 +184,11 @@ def main(ee=False):
     filtered_df = exclude_on_location(filtered_df, parks_polygon, "parks")
     filtered_df = exclude_on_location(filtered_df, mountains_polygon, "mountains")
     filtered_df = exclude_on_location(filtered_df, roads_polygon, "roads")
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 8d5347560fcf455e5db681c3c4c7f597d3d1f25f
     if ee:
         filtered_df = exclude_on_land_cover(filtered_df)
     print(
