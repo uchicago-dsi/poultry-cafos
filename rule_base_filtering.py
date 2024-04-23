@@ -3,13 +3,17 @@ import pandas as pd
 import ee
 import argparse as ap
 from geopandas.tools import sjoin
+import os
 
 service_account = "earth-engine-rafi@rafi-usa.iam.gserviceaccount.com"
 credentials = ee.ServiceAccountCredentials(service_account, "private-key.json")
 ee.Initialize(credentials)
 
 parser = ap.ArgumentParser()
-parser.add_argument("path", help="path to the file")
+parser.add_argument('path', help='Path to the file')
+parser.add_argument('-ee', '--ee', action='store_true', default=False, help='Whether to apply exclusion based on land cover')
+parser.add_argument('-bd', '--buffer_distance', type=float, default=0, help='Buffer distance value')
+
 args = parser.parse_args()
 
 
@@ -136,14 +140,14 @@ PATHS = ['data/geojson_to_filter_out/tl_2019_us_coastline',
 
 
 
-def main(ee=False, buffer_distance=0):
+def main():
 
     if args is None:
         raise ValueError('No arguments provided')
 
     # Extracts the filename and splits it to get the region code
     region_code = (os.path.basename(args.path)
-                   .split('_')[1].split('.')[0])
+                   .split('_')[0].split('/')[0])
 
     # Reads predictions and applies postprocess
     df = gpd.read_file(args.path)
@@ -161,12 +165,12 @@ def main(ee=False, buffer_distance=0):
              #'roads']
 
     for name, path in zip(names, PATHS):
-        filtered_df = exclude_on_location(path, name, filtered_df, buffer_distance)  
+        filtered_df = exclude_on_location(path, name, filtered_df, args.buffer_distance)  
 
-    if ee:
+    if args.ee:
         filtered_df = exclude_on_land_cover(filtered_df)
     
-    print(f'The dataframe has {len(filtered_df)} rows after filtering.')
+    print(f'The dataframe has {len(filtered_df.loc[filtered_df.loc[:,'false_positive']==0,:])} rows after filtering.')
     
     # Saves in a new geojson
     filtered_df.to_file(f'output/final_data_{region_code}.geojson', driver='GeoJSON')
